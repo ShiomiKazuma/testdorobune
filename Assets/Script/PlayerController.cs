@@ -57,6 +57,7 @@ public class PlayerController : MonoBehaviour
         _state = State.Normal;
         _capsuleCollider = GetComponent<CapsuleCollider>();
         _grapShotTransform.gameObject.SetActive(false);
+        _debugHitPointTransform.gameObject.SetActive(false);
     }
 
     // Update is called once per frame
@@ -146,6 +147,7 @@ public class PlayerController : MonoBehaviour
         RaycastHit hitGrap;
         if (Physics.Raycast(this.transform.position, _mainCamera.transform.forward, out hitGrap, _grapDis))
         {
+            _debugHitPointTransform.gameObject.SetActive(true);
             _debugHitPointTransform.transform.position = hitGrap.point;
             _grapShotPos = hitGrap.point;
             _grapSize = 0f;
@@ -191,10 +193,11 @@ public class PlayerController : MonoBehaviour
             StopGrapShot();
         }
 
-        //if (Input.GetButtonDown("Jump"))
-        //{
-
-        //}
+        if (Input.GetButtonDown("Jump"))
+        {
+            //グラップリングキャンセル
+            StopGrapShot();
+        }
     }
 
     //接地判定
@@ -225,6 +228,7 @@ public class PlayerController : MonoBehaviour
         _state = State.Normal;
         ResetGravity() ;
         _grapShotTransform.gameObject.SetActive(false);
+        _debugHitPointTransform.gameObject.SetActive(false);
         _particleSystem.Stop();
     }
 }
