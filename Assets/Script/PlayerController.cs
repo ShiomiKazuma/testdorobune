@@ -20,6 +20,7 @@ public class PlayerController : MonoBehaviour
     float _grapSize;
     Vector3 vec;
     RaycastHit hit;
+    Vector3 _characterVecMoment;
     /// <summary>法線のベクトル </summary>
     Vector3 _normalVector = Vector3.zero;
     /// <summary>登れる傾斜の角度を設定 </summary>
@@ -41,6 +42,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] LayerMask _groundMask = ~0;
     CapsuleCollider _capsuleCollider;
     [SerializeField] GameObject _camera;
+    [SerializeField] float _jumpSpeed = 20f;
     enum State
     {
         Normal,
@@ -116,7 +118,6 @@ public class PlayerController : MonoBehaviour
             }
 
         }
-        Debug.Log(IsGround);
     }
 
     void FixedUpdate()
@@ -133,11 +134,26 @@ public class PlayerController : MonoBehaviour
                     IsGround = false;
                     Debug.Log("ジャンプ");
                 }
+                //キャラクターmomentumを追加
+                vec += _characterVecMoment;
                 _rb.velocity = vec;
             }
             else
             {
+                //キャラクターmomentumを追加
+                vec += _characterVecMoment;
                 _rb.velocity = vec;
+            }
+        }
+
+        //キャラクターmomentumを追加
+        if (_characterVecMoment.magnitude >= 0f)
+        {
+            float momentDrag = 10f;
+            _characterVecMoment -= _characterVecMoment * momentDrag * Time.deltaTime;
+            if (_characterVecMoment.magnitude < 0f)
+            {
+                _characterVecMoment = Vector3.zero;
             }
         }
     }
@@ -196,6 +212,9 @@ public class PlayerController : MonoBehaviour
         if (Input.GetButtonDown("Jump"))
         {
             //グラップリングキャンセル
+            float momentumExtraSpeed = 0.25f;
+            _characterVecMoment = grapDir * _grapSpeed * momentumExtraSpeed;
+            _characterVecMoment += Vector3.up * _jumpSpeed;
             StopGrapShot();
         }
     }
