@@ -2,6 +2,7 @@ using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -41,8 +42,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float _groundDistance = 0.2f;
     [SerializeField] LayerMask _groundMask = ~0;
     CapsuleCollider _capsuleCollider;
-    [SerializeField] GameObject _camera;
+    //[SerializeField] GameObject _camera;
     [SerializeField] float _jumpSpeed = 20f;
+    [SerializeField] GameObject _aim;
+    Image _aimImage;
     enum State
     {
         Normal,
@@ -60,6 +63,7 @@ public class PlayerController : MonoBehaviour
         _capsuleCollider = GetComponent<CapsuleCollider>();
         _grapShotTransform.gameObject.SetActive(false);
         _debugHitPointTransform.gameObject.SetActive(false);
+        _aimImage = _aim.GetComponent<Image>();
     }
 
     // Update is called once per frame
@@ -117,6 +121,17 @@ public class PlayerController : MonoBehaviour
                 _jumping = false;
             }
 
+        }
+
+        //エイムカーソルを変化させる
+        RaycastHit hitAim;
+        if (Physics.Raycast(this.transform.position, _mainCamera.transform.forward, out hitAim, _grapDis))
+        {
+            _aimImage.color = Color.black;
+        }
+        else
+        {
+            _aimImage.color = Color.red;
         }
     }
 
