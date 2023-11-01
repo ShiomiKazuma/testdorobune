@@ -46,6 +46,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float _jumpSpeed = 20f;
     [SerializeField] GameObject _aim;
     Image _aimImage;
+    /// <summary>アイテムインベントr </summary>
+    Inventory _inventory;
     enum State
     {
         Normal,
@@ -64,6 +66,8 @@ public class PlayerController : MonoBehaviour
         _grapShotTransform.gameObject.SetActive(false);
         _debugHitPointTransform.gameObject.SetActive(false);
         _aimImage = _aim.GetComponent<Image>();
+        //インベントリ
+        _inventory = new Inventory();
     }
 
     // Update is called once per frame
