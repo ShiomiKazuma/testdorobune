@@ -47,7 +47,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] GameObject _aim;
     Image _aimImage;
     /// <summary>アイテムインベントr </summary>
-    Inventory _inventory;
+    Inventory _inventory; 
+    [SerializeField] UiInventory _uiInventory;
     enum State
     {
         Normal,
