@@ -8,6 +8,7 @@ public class PlayerController : MonoBehaviour
 {
     Rigidbody _rb;
     [SerializeField] float _moveSpeed = 3f;
+    float _dushSpeed = 10.0f;
     Vector3 _dir;
     Camera _mainCamera;
     /// <summary>グラップリングのスピード </summary>
@@ -95,7 +96,14 @@ public class PlayerController : MonoBehaviour
             _dir.y = 0;
             //単一化する
             _dir = _dir.normalized;
-            vec = _dir * _moveSpeed;
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                vec = _dir * _dushSpeed; 
+            }
+            else
+            {
+                vec = _dir * _moveSpeed;
+            }
             vec.y = _rb.velocity.y;
             // キャラクターを「現在の（XZ 平面上の）進行方向」に向ける
             Vector3 forward = _rb.velocity;
