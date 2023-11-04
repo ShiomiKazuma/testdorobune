@@ -12,4 +12,14 @@ public class Item
 
     public ItemType _itemtype;
     public int _amount;
+
+    public Sprite GetSprite()
+    {
+        switch(_itemtype)
+        {
+            default:
+            case ItemType.Knife:
+                return ItemAsset.Instance._knife;
+        }
+    }
 }

@@ -70,6 +70,7 @@ public class PlayerController : MonoBehaviour
         _aimImage = _aim.GetComponent<Image>();
         //ƒCƒ“ƒxƒ“ƒgƒŠ
         _inventory = new Inventory();
+        _uiInventory.SetInventory(_inventory);
     }
 
     // Update is called once per frame
