@@ -26,19 +26,19 @@ public class UiInventory : MonoBehaviour
         int x = 0;
         int y = 0;
         
-        foreach(Item item in _inventory.GetItemsList())
-        {
-            RectTransform itemSlotRectTransform = Instantiate(_itemSlotTemplate, _itemSlotContainer).GetComponent<RectTransform>();
-            itemSlotRectTransform.gameObject.SetActive(true);
-            itemSlotRectTransform.anchoredPosition = new Vector2(x * _itemSlotCellSize, y * _itemSlotCellSize);
-            Image image = itemSlotRectTransform.Find("image").GetComponent<Image>();
-            image.sprite = item.GetSprite();
-            x++;
-            if(x > 4)
-            {
-                x = 0;
-                y++;
-            }
-        }
+        //foreach(Item item in _inventory.GetItemsList())
+        //{
+        //    RectTransform itemSlotRectTransform = Instantiate(_itemSlotTemplate, _itemSlotContainer).GetComponent<RectTransform>();
+        //    itemSlotRectTransform.gameObject.SetActive(true);
+        //    itemSlotRectTransform.anchoredPosition = new Vector2(x * _itemSlotCellSize, y * _itemSlotCellSize);
+        //    Image image = itemSlotRectTransform.Find("image").GetComponent<Image>();
+        //    //image.sprite = item.GetSprite();
+        //    x++;
+        //    if(x > 4)
+        //    {
+        //        x = 0;
+        //        y++;
+        //    }
+        //}
     }
 }
