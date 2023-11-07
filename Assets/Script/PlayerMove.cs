@@ -4,41 +4,30 @@ using UnityEngine;
 
 public class PlayerMove : MonoBehaviour
 {
-    Rigidbody _rb;
-    [SerializeField] float _moveSpeed = 3f;
-    Vector3 _dir;
+    [SerializeField] float _groundCheckRadius = 0.4f;
+    [SerializeField] float _groundCheckOffsetY = 0.45f;
+    [SerializeField] float _groundCheckDistance = 0.01f;
+    [SerializeField] LayerMask _groundMask = ~0;
+    RaycastHit _groundhit;
+    bool _isGround;
+    CapsuleCollider _capsuleCollider;
     // Start is called before the first frame update
     void Start()
     {
-        _rb = GetComponent<Rigidbody>();
+        _capsuleCollider = GetComponent<CapsuleCollider>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        float x = Input.GetAxis("Horizontal");
-        float y = Input.GetAxis("Vertical");
-        _dir = Vector3.forward * y + Vector3.right * x;
-        // カメラのローカル座標系を基準に dir を変換する
-        _dir = Camera.main.transform.TransformDirection(_dir);
-        // カメラは斜め下に向いているので、Y 軸の値を 0 にして「XZ 平面上のベクトル」にする
-        _dir.y = 0;
-        // キャラクターを「現在の（XZ 平面上の）進行方向」に向ける
-        Vector3 forward = _rb.velocity;
-        forward.y = 0;
-
-        if (forward != Vector3.zero)
-        {
-            this.transform.forward = forward;
-        }
-
         
     }
 
-    void FixedUpdate()
+    bool IsGround()
     {
-        // 「力を加える」処理は力学的処理なので FixedUpdate で行うこと
-        _rb.AddForce(_dir.normalized * _moveSpeed, ForceMode.Force);
+        float extent = Mathf.Max(0, _capsuleCollider.height * 0.5f - _capsuleCollider.radius);
+        Vector3 origin = transform.TransformPoint(_capsuleCollider.center + Vector3.down * extent) + Vector3.up * _groundCheckDistance;
+        Ray spereCastRay = new Ray(origin, Vector3.down);
+        return Physics.SphereCast(spereCastRay, _capsuleCollider.radius, _groundCheckDistance * 2f, _groundMask);
     }
-
 }
