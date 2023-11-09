@@ -4,8 +4,8 @@ using UnityEngine;
 
 public abstract class ItemBase : MonoBehaviour
 {
-    [SerializeField] Item _item;
-    [SerializeField] AcitiveType _acitiveType;
+    [SerializeField] public Item _item;
+    [SerializeField] public AcitiveType _acitiveType;
 
     public abstract void Active();
 
