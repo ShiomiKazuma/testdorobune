@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] UnityEvent _onGameOver;
     [SerializeField] Image _image;
     [SerializeField] GameObject _gameOverPanel;
+    public int _grapLong;
     // Start is called before the first frame update
     void Start()
     {
@@ -20,6 +21,7 @@ public class GameManager : MonoBehaviour
         _slider.value = _playerHp;
         _image.color = Color.clear;
         _gameOverPanel.SetActive(false);
+        _grapLong = 50;
     }
 
     public void Hit(int damage)
@@ -40,4 +42,8 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0f;
     }
 
+    public void GrapUp(int up)
+    {
+        _grapLong += up;
+    }
 }
