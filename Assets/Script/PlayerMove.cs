@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
 public class PlayerMove : MonoBehaviour
 {
     [SerializeField] float _groundCheckRadius = 0.4f;
@@ -11,16 +12,38 @@ public class PlayerMove : MonoBehaviour
     RaycastHit _groundhit;
     bool _isGround;
     CapsuleCollider _capsuleCollider;
+    Rigidbody _rb;
+    Camera _mainCamera;
+    Vector3 _dir;
+    Vector3 _moveVec;
     // Start is called before the first frame update
     void Start()
     {
         _capsuleCollider = GetComponent<CapsuleCollider>();
+        _rb = GetComponent<Rigidbody>();
+        _mainCamera = Camera.main;
+        //カーソルを出さないようにする
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        //移動入力
+        float x = Input.GetAxis("Horizontal");
+        float y = Input.GetAxis("Vertical");
+        _dir = new Vector3(x, 0, z);
+        // カメラのローカル座標系を基準に dir を変換する
+        _dir = Camera.main.transform.TransformDirection(_dir);
+        // カメラは斜め下に向いているので、Y 軸の値を 0 にして「XZ 平面上のベクトル」にする
+        _dir.y = 0;
+        //単一化する
+        _dir = _dir.normalized;
+        //_moveVec.y = _rb.velocity.y;
+
+        Vector3 forward = _mainCamera.transform.forward;
+        forward.y = 0;
+        transform.forward = forward;
     }
 
     bool IsGround()
