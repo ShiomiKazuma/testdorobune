@@ -9,6 +9,7 @@ public class PlayerMove : MonoBehaviour
     [SerializeField] float _groundCheckOffsetY = 0.45f;
     [SerializeField] float _groundCheckDistance = 0.01f;
     [SerializeField] LayerMask _groundMask = ~0;
+    [SerializeField] float _moveSpeed = 10f;
     RaycastHit _groundhit;
     bool _isGround;
     CapsuleCollider _capsuleCollider;
@@ -29,9 +30,11 @@ public class PlayerMove : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //接地判定をチェックする
+        _isGround = IsGround();
         //移動入力
         float x = Input.GetAxis("Horizontal");
-        float y = Input.GetAxis("Vertical");
+        float z = Input.GetAxis("Vertical");
         _dir = new Vector3(x, 0, z);
         // カメラのローカル座標系を基準に dir を変換する
         _dir = Camera.main.transform.TransformDirection(_dir);
@@ -40,10 +43,21 @@ public class PlayerMove : MonoBehaviour
         //単一化する
         _dir = _dir.normalized;
         //_moveVec.y = _rb.velocity.y;
-
+        
         Vector3 forward = _mainCamera.transform.forward;
         forward.y = 0;
         transform.forward = forward;
+
+        _moveVec = _dir * _moveSpeed;
+        _moveVec.y = _rb.velocity.y;
+    }
+
+    private void FixedUpdate()
+    {
+        if (_isGround)
+        {
+            _rb.velocity = _moveVec;
+        }
     }
 
     bool IsGround()
