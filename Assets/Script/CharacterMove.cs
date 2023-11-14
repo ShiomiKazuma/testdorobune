@@ -6,10 +6,22 @@ using UnityEngine;
 public class CharacterMove : MonoBehaviour
 {
     [SerializeField] float _mouseSensitivity = 1f;
+    [SerializeField] float _moveSpeed = 10f;
+    [SerializeField] float _jumpPower = 20f;
+    [SerializeField] float _gravityDownForce = -60f;
+    [SerializeField] Transform _hitPointTransform;
     CharacterController _characterController;
     float _cameraVerticalAngle;
     float _characterVelocityY;
     Camera _mainCamera;
+    State _state;
+    Vector3 _hookShotPos;
+    enum State
+    {
+        Normal,
+        HookshotFlying,
+
+    }
     // Start is called before the first frame update
     void Start()
     {
@@ -21,8 +33,19 @@ public class CharacterMove : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        HandleCharacterLook();
-        HandleCaracterMovement();
+        switch(_state)
+        {
+            case State.Normal:
+                HandleCharacterLook();
+                HandleCaracterMovement();
+                HandleHookshotStart();
+                break;
+            case State.HookshotFlying:
+                HandleCharacterLook();
+                HandHookshotMovement();
+                break;
+        }
+        
     }
 
     void HandleCharacterLook()
@@ -43,5 +66,52 @@ public class CharacterMove : MonoBehaviour
         //方向の入力
         float moveX = Input.GetAxisRaw("Horizontal");
         float moveZ = Input.GetAxisRaw("Vertical");
+
+        Vector3 characterVelocity = transform.right * moveX * _moveSpeed + transform.forward * moveZ * _moveSpeed;
+
+        if(_characterController.isGrounded)
+        {
+            _characterVelocityY = 0f;
+
+            if(Input.GetButtonDown("Jump"))
+            {
+                _characterVelocityY = _jumpPower;
+            }
+        }
+
+        _characterVelocityY += _gravityDownForce * Time.deltaTime;
+        characterVelocity.y = _characterVelocityY;
+        _characterController.Move(characterVelocity * Time.deltaTime);
+    }
+    //グラップリング始めの処理
+    void HandleHookshotStart()
+    {
+        if(Input.GetMouseButtonDown(0))
+        {
+            if(Physics.Raycast(_mainCamera.transform.position, _mainCamera.transform.forward, out RaycastHit raycastHit))
+            {
+                //ヒットした場合の処理
+                _hitPointTransform.forward = _mainCamera.transform.forward; //フックポイントを正面にする
+                _hitPointTransform.position = raycastHit.point; //フックショットを移動させる
+                _hookShotPos = raycastHit.point;
+                _state = State.HookshotFlying;
+            }
+        }
+    }
+
+    void HandHookshotMovement()
+    {
+        Vector3 hookDir = (_hookShotPos - transform.position).normalized;
+        float hookshotSpeedMax = 40f;
+        float hookshotSpeedMin = 10f;
+        float hookshotSpeed = Mathf.Clamp(Vector3.Distance(transform.position, _hookShotPos), hookshotSpeedMin, hookshotSpeedMax);
+        float hookshotMultiplier = 2f; //フックショットの加速度
+        _characterController.Move(hookDir * hookshotSpeed * hookshotMultiplier * Time.deltaTime);
+
+        if(Vector3.Distance(transform.position, _hookShotPos) < 1f)
+        {
+            _state = State.Normal;
+            Debug.Log("到達");
+        }
     }
 }
