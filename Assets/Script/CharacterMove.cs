@@ -2,23 +2,32 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
+
 [RequireComponent (typeof(CharacterController))]
 public class CharacterMove : MonoBehaviour
 {
+    const float _normalFov = 60f;
+    const float _hookshotFov = 100f;
     [SerializeField] float _mouseSensitivity = 1f;
     [SerializeField] float _moveSpeed = 10f;
     [SerializeField] float _jumpPower = 20f;
     [SerializeField] float _gravityDownForce = -60f;
     [SerializeField] Transform _hitPointTransform;
     [SerializeField] Transform _hookshotTransform;
+    [SerializeField] ParticleSystem _hookparticleSystem;
+    [SerializeField] GameObject _aim;
+    [SerializeField] float _grapDis = 30f;
+    Image _aimImage;
     CharacterController _characterController;
     float _cameraVerticalAngle;
     float _characterVelocityY;
-    Camera _mainCamera;
+    Camera _playerCamera;
     State _state;
     Vector3 _hookShotPos;
     Vector3 _characterVecMomentum;
     float _hockshotSize;
+    CameraFov _cameraFov;
     enum State
     {
         Normal,
@@ -30,9 +39,11 @@ public class CharacterMove : MonoBehaviour
     void Start()
     {
         _characterController = GetComponent<CharacterController> ();
-        _mainCamera = Camera.main;
+        _playerCamera = transform.Find("Camera").GetComponent<Camera>();
+        _cameraFov = _playerCamera.GetComponent<CameraFov> ();
         Cursor.lockState = CursorLockMode.Locked;
         _state = State.Normal;
+        _aimImage = _aim.GetComponent<Image>();
         _hookshotTransform.gameObject.SetActive(false);
     }
 
@@ -56,7 +67,18 @@ public class CharacterMove : MonoBehaviour
                 HandHookshotMovement();
                 break;
         }
-        
+
+        //エイムカーソルを変化させる
+        RaycastHit hitAim;
+        if (Physics.Raycast(this.transform.position, _playerCamera.transform.forward, out hitAim, _grapDis))
+        {
+            _aimImage.color = Color.black;
+        }
+        else
+        {
+            _aimImage.color = Color.red;
+        }
+
     }
 
     void HandleCharacterLook()
@@ -69,7 +91,7 @@ public class CharacterMove : MonoBehaviour
         //縦方向のカメラの調整
         _cameraVerticalAngle -= lookY * _mouseSensitivity;
         _cameraVerticalAngle = Mathf.Clamp(_cameraVerticalAngle, -89f, 89f);
-        _mainCamera.transform.localEulerAngles = new Vector3(_cameraVerticalAngle, 0, 0);
+        _playerCamera.transform.localEulerAngles = new Vector3(_cameraVerticalAngle, 0, 0);
     }
 
     void HandleCaracterMovement()
@@ -115,10 +137,10 @@ public class CharacterMove : MonoBehaviour
     {
         if(InputDownHookshot())
         {
-            if(Physics.Raycast(_mainCamera.transform.position, _mainCamera.transform.forward, out RaycastHit raycastHit))
+            if(Physics.Raycast(_playerCamera.transform.position, _playerCamera.transform.forward, out RaycastHit raycastHit, _grapDis))
             {
                 //ヒットした場合の処理
-                _hitPointTransform.forward = _mainCamera.transform.forward; //フックポイントを正面にする
+                _hitPointTransform.forward = _playerCamera.transform.forward; //フックポイントを正面にする
                 _hitPointTransform.position = raycastHit.point; //フックショットを移動させる
                 _hookShotPos = raycastHit.point;
                 _hockshotSize = 0f;
@@ -140,6 +162,8 @@ public class CharacterMove : MonoBehaviour
         if(_hockshotSize >= Vector3.Distance(transform.position, _hookShotPos))
         {
             _state = State.HookshotFlying;
+            _cameraFov.SetCameraFov(_hookshotFov);
+            _hookparticleSystem.Play();
         }
     }
 
@@ -179,6 +203,8 @@ public class CharacterMove : MonoBehaviour
         _state = State.Normal;
         ResetGravity();
         _hookshotTransform.gameObject.SetActive(false);
+        _cameraFov.SetCameraFov(_normalFov);
+        _hookparticleSystem.Stop();
     }
     bool InputDownHookshot()
     {
