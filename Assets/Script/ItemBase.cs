@@ -6,21 +6,53 @@ public abstract class ItemBase : MonoBehaviour
 {
     [SerializeField] public Item _item;
     [SerializeField] public AcitiveType _acitiveType;
+    [SerializeField] float _touchRange = 0.5f;
+    GameObject _player;
 
     public abstract void Active();
 
-    private void OnTriggerEnter(Collider collider)
+    private void Start()
     {
-        if(collider.gameObject.tag.Equals("Player"))
+        _player = GameObject.FindWithTag("Player");
+    }
+
+    //velocity用
+    //private void OnTriggerEnter(Collider collider)
+    //{
+    //    if(collider.gameObject.tag.Equals("Player"))
+    //    {
+    //        if(_acitiveType == AcitiveType.Use)
+    //        {
+    //            Active();
+    //            Destroy(this.gameObject);
+    //        }
+    //        else if(_acitiveType == AcitiveType.PickUp)
+    //        {
+    //            //ここにインベントリに入れる処理を書く
+    //            Inventory._instance.Add(_item);
+    //        }
+    //    }
+    //}
+
+    //キャラクターコントローラー用
+    private void Update()
+    {
+        if(!(_player == null))
         {
-            if(_acitiveType == AcitiveType.Use)
+            if(Vector3.Distance(_player.transform.position, this.transform.position) < _touchRange)
             {
-                Active();
-                Destroy(this.gameObject);
-            }
-            else if(_acitiveType == AcitiveType.PickUp)
-            {
-                //ここにインベントリに入れる処理を書く
+                if (_acitiveType == AcitiveType.Use)
+                {
+                    Active();
+                    Destroy(this.gameObject);
+                }
+                else if (_acitiveType == AcitiveType.PickUp)
+                {
+                    //ここにインベントリに入れる処理を書く
+                    bool wasPickUp = Inventory._instance.Add(_item);
+                    if(wasPickUp)
+                        Destroy(this.gameObject);
+                }   
             }
         }
     }
