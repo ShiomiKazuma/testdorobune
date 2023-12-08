@@ -45,4 +45,10 @@ public class InventorySlot : MonoBehaviour
     {
         _textBox.text = _item._setumeibunn;
     }
+
+    public void Hierarchy()
+    {
+        //ヒエラルキー上の一番下に移動して、前面に表示される
+        transform.SetAsLastSibling();
+    }
 }
